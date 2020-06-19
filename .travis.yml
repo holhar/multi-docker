@@ -1,0 +1,24 @@
+language: generic
+sudo: required
+
+services:
+  - docker
+
+before_install:
+  - docker build -t holhar/react-test -f client/Dockerfile.dev ./client
+
+script:
+  - docker run -e CI=true holhar/react-test npm run test
+
+after_success:
+  - docker build -t holhar/multi-client ./client
+  - docker build -t holhar/multi-nginx ./nginx
+  - docker build -t holhar/multi-server ./server
+  - docker build -t holhar/multi-worker ./worker
+  # Log in to the docker CLI
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  # Take thos images and push them to docker hub
+  - docker push holhar/multi-client
+  - docker push holhar/multi-nginx
+  - docker push holhar/multi-server
+  - docker push holhar/multi-worker
