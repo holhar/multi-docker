@@ -1,0 +1,20 @@
+# Multi-Phase Dockerfile
+
+# Build Phase
+#FROM node:alpine as builder <-- aws-ebs can not deal with this
+FROM node:alpine
+WORKDIR '/app'
+#COPY package.json . <-- aws-ebs can not deal with this
+COPY ./package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+# /app/build <-- contains the necessary data for the production code
+
+# Run Phase
+FROM nginx
+EXPOSE 3000
+# Copy over something from the other phase we've just been working on
+#                               |- using nginx default dir for delivering web content
+COPY ./nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY --from=builder /app/build /usr/share/nginx/html
