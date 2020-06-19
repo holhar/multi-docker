@@ -17,4 +17,4 @@ EXPOSE 3000
 # Copy over something from the other phase we've just been working on
 #                               |- using nginx default dir for delivering web content
 COPY ./nginx/default.conf /etc/nginx/conf.d/default.conf
-COPY --from=builder /app/build /usr/share/nginx/html
+COPY --from=0 /app/build /usr/share/nginx/html
